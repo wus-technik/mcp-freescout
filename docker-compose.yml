@@ -1,0 +1,11 @@
+services:
+  mcp-freescout:
+    build: .
+    image: mcp-freescout-http:local
+    ports:
+      - "3000:3000"
+    environment:
+      FREESCOUT_URL: "https://support.example.com"
+      PORT: "3000"
+      # Optional: FREESCOUT_DEFAULT_USER_ID: "1"
+    restart: unless-stopped
