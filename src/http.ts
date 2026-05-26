@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import express, { type Request, type Response } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createRequire } from 'node:module';
 import { loadEnv } from './env.js';
@@ -23,6 +23,11 @@ if (!FREESCOUT_URL) {
   process.exit(1);
 }
 
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+  console.error(`Invalid PORT: ${process.env.PORT}`);
+  process.exit(1);
+}
+
 const analyzer = new TicketAnalyzer();
 const app = express();
 app.use(express.json({ limit: '4mb' }));
@@ -31,7 +36,7 @@ app.get('/healthz', (_req: Request, res: Response) => {
   res.json({ status: 'ok', version: packageJson.version });
 });
 
-app.post('/mcp', async (req: Request, res: Response) => {
+app.post('/mcp', async (req: Request, res: Response, next: NextFunction) => {
   let token: string;
   try {
     token = extractBearerToken(req.header('authorization'));
@@ -43,7 +48,8 @@ app.post('/mcp', async (req: Request, res: Response) => {
         .json({ jsonrpc: '2.0', error: { code: -32001, message: err.message }, id: null });
       return;
     }
-    throw err;
+    next(err);
+    return;
   }
 
   const api = new FreeScoutAPI(FREESCOUT_URL!, token);
@@ -55,14 +61,19 @@ app.post('/mcp', async (req: Request, res: Response) => {
   });
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
 
-  res.on('close', () => {
+  let cleanedUp = false;
+  const cleanup = () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
     transport.close().catch(() => {
       /* noop */
     });
     server.close().catch(() => {
       /* noop */
     });
-  });
+  };
+  res.on('finish', cleanup);
+  res.on('close', cleanup);
 
   try {
     await server.connect(transport);
