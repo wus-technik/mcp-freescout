@@ -147,6 +147,62 @@ Or in development mode with auto-reload:
 npm run dev
 ```
 
+## Docker / HTTP transport
+
+In addition to the stdio entrypoint, this package ships an HTTP entrypoint
+(`dist/http.js`, bin: `mcp-freescout-http`) that speaks the MCP Streamable HTTP
+transport. It is designed to run inside a shared Docker container while still
+letting each user authenticate with their own FreeScout API key.
+
+### Run with Docker
+
+```bash
+docker build -t mcp-freescout-http .
+docker run --rm -p 3000:3000 \
+  -e FREESCOUT_URL=https://support.example.com \
+  mcp-freescout-http
+```
+
+The container only knows the FreeScout instance URL. **No API key is configured
+at container start.** A `docker-compose.yml` example is included in the repo.
+
+### Authenticate per connection
+
+MCP clients connect to `POST /mcp` and pass the user's FreeScout API key as a
+Bearer token:
+
+```
+Authorization: Bearer <user-freescout-api-key>
+```
+
+The server uses that key for every FreeScout request it makes on behalf of the
+connection, against the fixed `FREESCOUT_URL`. Requests without a valid
+`Authorization: Bearer …` header are rejected with HTTP 401 and a
+`WWW-Authenticate: Bearer` challenge.
+
+### Environment variables (HTTP mode)
+
+| Variable                    | Required | Default | Description                                 |
+| --------------------------- | -------- | ------- | ------------------------------------------- |
+| `FREESCOUT_URL`             | yes      | —       | Base URL of the FreeScout instance.         |
+| `PORT`                      | no       | `3000`  | HTTP port the server binds to.              |
+| `FREESCOUT_DEFAULT_USER_ID` | no       | `1`     | Default `userId` for note/draft operations. |
+
+`FREESCOUT_API_KEY` is **not** read by the HTTP entrypoint — it is supplied per
+request via `Authorization: Bearer`.
+
+### Health check
+
+`GET /healthz` returns `{"status":"ok","version":"…"}` for use as a
+container/orchestrator health probe. The bundled Docker image also defines a
+`HEALTHCHECK` that polls this endpoint.
+
+### Stdio mode still works
+
+The original stdio entrypoint (`mcp-freescout`, `dist/index.js`) is unchanged
+and still reads `FREESCOUT_URL` + `FREESCOUT_API_KEY` from the environment, for
+local single-user installs.
+
 ## Available Tools
 
 ### Core Ticket Operations

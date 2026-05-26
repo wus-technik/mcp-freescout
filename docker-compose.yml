@@ -1,0 +1,12 @@
+services:
+  mcp-freescout:
+    build: .
+    image: mcp-freescout-http:local
+    ports:
+      - "3000:3000"
+    environment:
+      # Copy this file to docker-compose.local.yml and replace with your instance URL.
+      FREESCOUT_URL: "https://support.example.com"
+      PORT: "3000"
+      # Optional: FREESCOUT_DEFAULT_USER_ID: "1"
+    restart: unless-stopped

@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Support `to`, `cc`, and `bcc` recipients in `freescout_create_draft_reply`, with omitted fields inheriting current conversation recipients when available.
+* Add a Streamable HTTP MCP entrypoint with per-request bearer-token authentication for FreeScout API access.
+* Add Docker packaging for the HTTP server, including a sample Compose file and container health check.
+* Add a dedicated server factory and auth tests to cover HTTP transport setup and bearer-token extraction.
+
+### Changed
+
+* Document HTTP transport usage, Docker deployment, and bearer-token authentication in the README.
+* Refactor MCP tool registration into a shared `createFreeScoutMcpServer` factory used by both stdio and HTTP entrypoints.
+
+### Fixed
+
+* Improve HTTP entrypoint robustness by validating `PORT`, routing auth failures correctly, and guarding transport cleanup.
 
 ## [2.0.1](https://github.com/verygoodplugins/mcp-freescout/compare/v2.0.0...v2.0.1) (2026-01-06)
 
