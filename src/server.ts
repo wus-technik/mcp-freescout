@@ -16,8 +16,8 @@ export interface CreateServerOptions {
   api: FreeScoutAPI;
   analyzer: TicketAnalyzer;
   defaultUserId: number;
-  /** Server version to advertise. Defaults to a placeholder if omitted. */
-  version?: string;
+  /** Server version to advertise. */
+  version: string;
 }
 
 const allowedThreadTypes = new Set(['customer', 'message', 'note']);
@@ -36,7 +36,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
 
   const server = new McpServer({
     name: 'mcp-freescout',
-    version: opts.version ?? '0.0.0',
+    version: opts.version,
   });
 
   // --- Tool 1: Get Ticket ---
