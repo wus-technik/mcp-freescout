@@ -57,6 +57,7 @@ app.post('/mcp', async (req: Request, res: Response, next: NextFunction) => {
     api,
     analyzer,
     defaultUserId: DEFAULT_USER_ID,
+    userBinding: 'authenticated',
     version: packageJson.version,
   });
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });

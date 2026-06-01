@@ -156,7 +156,7 @@ See [HOSTED.md](HOSTED.md) for:
 
 - local Docker usage and local MCP testing against `http://localhost:3000/mcp`
 - hosted deployment and public HTTPS connector setup for Claude
-- bearer-token authentication, environment variables, and health checks
+- bearer-token authentication, authenticated-user write attribution, environment variables, and health checks
 
 The original stdio entrypoint (`mcp-freescout`, `dist/index.js`) is unchanged
 and still reads `FREESCOUT_URL` + `FREESCOUT_API_KEY` from the environment for

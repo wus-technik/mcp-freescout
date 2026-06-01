@@ -16,6 +16,7 @@ export interface CreateServerOptions {
   api: FreeScoutAPI;
   analyzer: TicketAnalyzer;
   defaultUserId: number;
+  userBinding?: 'default' | 'authenticated';
   /** Server version to advertise. */
   version: string;
 }
@@ -33,6 +34,18 @@ const normalizeThreadBody = (body: unknown) => (typeof body === 'string' ? body 
 
 export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
   const { api, analyzer, defaultUserId: DEFAULT_USER_ID } = opts;
+  const userBinding = opts.userBinding ?? 'default';
+  const usesAuthenticatedUser = userBinding === 'authenticated';
+
+  const noteUserDescription = usesAuthenticatedUser
+    ? 'Ignored in hosted mode; the authenticated FreeScout API key determines the author.'
+    : 'User ID for the note (default: from env)';
+  const draftUserDescription = usesAuthenticatedUser
+    ? 'Ignored in hosted mode; the authenticated FreeScout API key determines the draft author.'
+    : 'User ID creating the draft (defaults to env setting)';
+  const updateDescription = usesAuthenticatedUser
+    ? 'Update ticket status and/or assignment as the authenticated FreeScout API user'
+    : 'Update ticket status and/or assignment';
 
   const server = new McpServer({
     name: 'mcp-freescout',
@@ -93,7 +106,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
       inputSchema: {
         ticket: z.string().describe('Ticket ID, ticket number, or FreeScout URL'),
         note: z.string().describe('The note content to add'),
-        userId: z.number().optional().describe('User ID for the note (default: from env)'),
+        userId: z.number().optional().describe(noteUserDescription),
       },
       outputSchema: {
         success: z.boolean(),
@@ -103,7 +116,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     },
     async ({ ticket, note, userId }) => {
       const ticketId = api.parseTicketInput(ticket);
-      const actualUserId = userId ?? DEFAULT_USER_ID;
+      const actualUserId = usesAuthenticatedUser ? undefined : userId ?? DEFAULT_USER_ID;
       await api.addThread(ticketId, 'note', note, actualUserId);
       const output = {
         success: true,
@@ -122,7 +135,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     'freescout_update_ticket',
     {
       title: 'Update Ticket Status/Assignment',
-      description: 'Update ticket status and/or assignment',
+      description: updateDescription,
       inputSchema: {
         ticket: z.string().describe('Ticket ID, ticket number, or FreeScout URL'),
         status: z
@@ -143,7 +156,10 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
         status?: 'active' | 'pending' | 'closed' | 'spam';
         assignTo?: number;
         byUser?: number;
-      } = { byUser: DEFAULT_USER_ID };
+      } = {};
+      if (!usesAuthenticatedUser) {
+        updates.byUser = DEFAULT_USER_ID;
+      }
       if (status) updates.status = status;
       if (assignTo) updates.assignTo = assignTo;
       await api.updateConversation(ticketId, updates);
@@ -171,7 +187,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
         userId: z
           .number()
           .optional()
-          .describe('User ID creating the draft (defaults to env setting)'),
+          .describe(draftUserDescription),
         to: z
           .array(z.string().email())
           .optional()
@@ -194,7 +210,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     },
     async ({ ticket, replyText, userId, to, cc, bcc }) => {
       const ticketId = api.parseTicketInput(ticket);
-      const actualUserId = userId ?? DEFAULT_USER_ID;
+      const actualUserId = usesAuthenticatedUser ? undefined : userId ?? DEFAULT_USER_ID;
       const requestedRecipients: FreeScoutRecipients = { to, cc, bcc };
       let recipientWarning: string | null = null;
 

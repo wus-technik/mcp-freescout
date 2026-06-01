@@ -27,6 +27,7 @@ const server = createFreeScoutMcpServer({
   api,
   analyzer,
   defaultUserId: DEFAULT_USER_ID,
+  userBinding: 'default',
   version: packageJson.version,
 });
 

@@ -3,7 +3,8 @@
 This package ships an HTTP entrypoint (`dist/http.js`, bin:
 `mcp-freescout-http`) that speaks the MCP Streamable HTTP transport. It is
 designed to run inside a shared Docker container while still letting each user
-authenticate with their own FreeScout API key.
+authenticate with their own FreeScout API key, including write actions being
+attributed to that authenticated FreeScout user.
 
 ## Run with Docker
 
@@ -30,6 +31,10 @@ The server uses that key for every FreeScout request it makes on behalf of the
 connection, against the fixed `FREESCOUT_URL`. Requests without a valid
 `Authorization: Bearer ...` header are rejected with HTTP 401 and a
 `WWW-Authenticate: Bearer` challenge.
+
+In hosted mode, write tools are bound to the authenticated API key identity.
+If a tool accepts a `userId` field for compatibility with stdio mode, that
+field is ignored by the HTTP entrypoint instead of allowing user impersonation.
 
 ## Connection methods
 
@@ -112,6 +117,10 @@ This server expects:
 
 `FREESCOUT_API_KEY` is **not** read by the HTTP entrypoint. It is supplied per
 request via `Authorization: Bearer`.
+
+`FREESCOUT_DEFAULT_USER_ID` remains available so the same shared server factory
+can also support stdio mode, but it is not used to override the authenticated
+user for hosted HTTP writes.
 
 ## Health check
 

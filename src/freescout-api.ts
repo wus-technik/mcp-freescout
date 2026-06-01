@@ -389,7 +389,7 @@ export class FreeScoutAPI {
   async createDraftReply(
     ticketId: string,
     text: string,
-    userId: number,
+    userId?: number,
     recipients?: FreeScoutRecipients
   ): Promise<FreeScoutThread> {
     return this.addThread(ticketId, 'message', text, userId, 'draft', recipients);
