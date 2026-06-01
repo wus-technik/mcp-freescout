@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0](https://github.com/wus-technik/mcp-freescout/compare/v2.1.1...v2.2.0) (2026-06-01)
+
+
+### Features
+
+* add CI/CD, MCP Registry, and standardization ([a683f1c](https://github.com/wus-technik/mcp-freescout/commit/a683f1ca117ae2f6a8b33a541d667cf16f81e3af))
+* add ESLint 9 flat config with typescript-eslint 8 ([4adc500](https://github.com/wus-technik/mcp-freescout/commit/4adc500cb89173e46481b91330e02f301feb953a))
+* add extractBearerToken helper for per-request API key auth ([638b2db](https://github.com/wus-technik/mcp-freescout/commit/638b2db15740748fa7066deb81b866e40ac91643))
+* add Streamable HTTP entrypoint with per-request bearer auth ([ee32261](https://github.com/wus-technik/mcp-freescout/commit/ee322615e3c35e5c70210262fd7f7b8c06b77340))
+* support recipients in draft replies ([#43](https://github.com/wus-technik/mcp-freescout/issues/43)) ([55d54d7](https://github.com/wus-technik/mcp-freescout/commit/55d54d766034b738c66b99f77de363d0f448bcd0))
+
+
+### Bug Fixes
+
+* Add env loader and improve schema flexibility ([29e8837](https://github.com/wus-technik/mcp-freescout/commit/29e8837714433e3b60b878b9e7a7a106a751f44d))
+* Add env loader and improve schema flexibility ([31bc42d](https://github.com/wus-technik/mcp-freescout/commit/31bc42dbf9fe37003cea5c82e4a054b69b84ff14))
+* add package-lock.json and update CodeQL to v4 ([78b9922](https://github.com/wus-technik/mcp-freescout/commit/78b99228b8faa80d1891745901208633818b124c))
+* allow test script to pass with no tests ([da0d557](https://github.com/wus-technik/mcp-freescout/commit/da0d557da19e370a1194ab6706cf2f4a6dc660a3))
+* bind hosted writes to authenticated users ([6871e83](https://github.com/wus-technik/mcp-freescout/commit/6871e83fb15e363005126b9ed71d435305f86777))
+* **ci:** make dependabot auto-approve non-fatal ([#42](https://github.com/wus-technik/mcp-freescout/issues/42)) ([7e931ca](https://github.com/wus-technik/mcp-freescout/commit/7e931cadfc22d9c2b4319f574242c2141221e6c6))
+* format markdown notes as FreeScout HTML ([68415a6](https://github.com/wus-technik/mcp-freescout/commit/68415a63e55b3151730e68c3fd5e14ff6d699466))
+* make integration tests non-blocking in CI ([#20](https://github.com/wus-technik/mcp-freescout/issues/20)) ([8367fd3](https://github.com/wus-technik/mcp-freescout/commit/8367fd35e66c95f1b2fbaba473542ecf1831c1cd))
+* **release:** use npm trusted publishing without token auth ([#45](https://github.com/wus-technik/mcp-freescout/issues/45)) ([ce0ae11](https://github.com/wus-technik/mcp-freescout/commit/ce0ae11c8b944a37fb335d3be57163e716ff7b2e))
+* remove outputSchema from freescout_get_ticket to fix validation errors ([#17](https://github.com/wus-technik/mcp-freescout/issues/17)) ([571b987](https://github.com/wus-technik/mcp-freescout/commit/571b987899dfb2816ff3eeaffc2ac0d852224433))
+* resolve lint errors in test files ([b942839](https://github.com/wus-technik/mcp-freescout/commit/b9428390e140efcb27e486892f4bc5de77928403))
+* restore @types/jest and update Jest config for v30 ([ef725f7](https://github.com/wus-technik/mcp-freescout/commit/ef725f7f87ef1e5bb9b52556d9cd548e9a5275fd))
+* route auth errors via next, guard cleanup, validate PORT in http entrypoint ([dd3b209](https://github.com/wus-technik/mcp-freescout/commit/dd3b209e03a658430737f368fd2d6d263136c2c7))
+* use args array for Windows compatibility in Claude Desktop config ([85168c7](https://github.com/wus-technik/mcp-freescout/commit/85168c7436f4578191c6f14cb83acdd9a06a5045))
+* use args array for Windows compatibility in Claude Desktop config ([fb1e225](https://github.com/wus-technik/mcp-freescout/commit/fb1e22527bbb75266456021170cc92b2f9380d70))
+* use NPM_TOKEN for npm publish authentication ([#21](https://github.com/wus-technik/mcp-freescout/issues/21)) ([299fa03](https://github.com/wus-technik/mcp-freescout/commit/299fa03555cd4d6428e3f84f7db41565e22d2f58))
+* validation errors + feat: includeLastMessage for search ([#18](https://github.com/wus-technik/mcp-freescout/issues/18)) ([dd884fa](https://github.com/wus-technik/mcp-freescout/commit/dd884fadf9d5ad24f28037e3eeff9613dfbccd4e))
+
 ## [2.1.1](https://github.com/verygoodplugins/mcp-freescout/compare/v2.1.0...v2.1.1) (2026-04-23)
 
 
