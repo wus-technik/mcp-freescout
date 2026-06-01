@@ -42,6 +42,7 @@ worktrees/
 tmp/
 temp/
 .tmp/
+.tmp*
 
 # Package manager files (keep lock files for reproducible builds)
 # package-lock.json - REQUIRED for npm ci in CI/CD
