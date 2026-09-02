@@ -3,7 +3,7 @@ import { TicketAnalyzer } from '../ticket-analyzer.js';
 import { createFreeScoutMcpServer } from '../server.js';
 
 describe('createFreeScoutMcpServer', () => {
-  it('registers all eleven FreeScout tools', () => {
+  it('registers all twelve FreeScout tools', () => {
     const api = new FreeScoutAPI('https://example.test', 'dummy-key');
     const analyzer = new TicketAnalyzer();
     const server = createFreeScoutMcpServer({
@@ -25,6 +25,7 @@ describe('createFreeScoutMcpServer', () => {
         'freescout_get_mailboxes',
         'freescout_get_ticket',
         'freescout_get_ticket_context',
+        'freescout_get_timelogs',
         'freescout_log_time',
         'freescout_search_tickets',
         'freescout_send_reply',

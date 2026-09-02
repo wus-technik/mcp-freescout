@@ -412,6 +412,43 @@ export class FreeScoutAPI {
     return this.request<unknown>(`/conversations/${ticketId}/timelogs`, 'POST', body);
   }
 
+  async getTimelogs(filters: {
+    conversationId?: string;
+    userId?: number;
+    from?: string;
+    to?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<FreeScoutApiResponse<unknown>> {
+    const params = new URLSearchParams();
+
+    if (filters.conversationId) {
+      params.append('conversationId', filters.conversationId);
+    }
+
+    if (filters.userId != null) {
+      params.append('userId', filters.userId.toString());
+    }
+
+    if (filters.from) {
+      params.append('from', this.parseRelativeTime(filters.from) || filters.from);
+    }
+
+    if (filters.to) {
+      params.append('to', this.parseRelativeTime(filters.to) || filters.to);
+    }
+
+    if (filters.page) {
+      params.append('page', filters.page.toString());
+    }
+
+    if (filters.pageSize) {
+      params.append('pageSize', filters.pageSize.toString());
+    }
+
+    return this.request<FreeScoutApiResponse<unknown>>(`/timelogs?${params.toString()}`);
+  }
+
   async updateConversation(
     ticketId: string,
     updates: {

@@ -51,6 +51,7 @@ The server exposes these tools:
 - **freescout_get_ticket_context** - Get ticket context for personalized replies
 - **freescout_search_tickets** - Search tickets by query and filters
 - **freescout_log_time** - Log time spent on a ticket (requires the Time Tracking module)
+- **freescout_get_timelogs** - List logged time, filterable by ticket, user, and date range
 
 ### Git Integration
 

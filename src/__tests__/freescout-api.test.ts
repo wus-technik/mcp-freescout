@@ -453,6 +453,79 @@ describe('FreeScoutAPI', () => {
     });
   });
 
+  describe('getTimelogs', () => {
+    const mockTimelogsResponse = {
+      _embedded: {
+        timelogs: [
+          {
+            id: 498,
+            conversationStatus: 'pending',
+            userId: 1,
+            timeSpent: 219,
+            paused: false,
+            finished: true,
+            createdAt: '2026-09-02T13:24:01Z',
+            updatedAt: '2026-09-02T13:43:10Z',
+            conversationId: 42,
+          },
+        ],
+      },
+      page: { size: 50, totalElements: 1, totalPages: 1, number: 1 },
+    };
+
+    it('should list timelogs with no filters', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockTimelogsResponse,
+      });
+
+      await api.getTimelogs({});
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${mockBaseUrl}/api/timelogs?`,
+        expect.objectContaining({ method: 'GET' })
+      );
+    });
+
+    it('should apply conversationId, userId, and date range filters', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockTimelogsResponse,
+      });
+
+      await api.getTimelogs({
+        conversationId: '123',
+        userId: 7,
+        from: '2026-08-01',
+        to: '2026-08-31',
+      });
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      const params = new URLSearchParams(calledUrl.split('?')[1]);
+      expect(params.get('conversationId')).toBe('123');
+      expect(params.get('userId')).toBe('7');
+      expect(params.get('from')).toBe('2026-08-01');
+      expect(params.get('to')).toBe('2026-08-31');
+    });
+
+    it('should convert relative time strings for from/to', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockTimelogsResponse,
+      });
+
+      await api.getTimelogs({ from: '7d' });
+
+      const calledUrl = mockFetch.mock.calls[0][0] as string;
+      const params = new URLSearchParams(calledUrl.split('?')[1]);
+      expect(params.get('from')).not.toBe('7d');
+      expect(params.get('from')).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    });
+  });
+
   describe('Schema Validation', () => {
     it('should validate conversation schema with all required fields', () => {
       const validConversation = {

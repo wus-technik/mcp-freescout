@@ -415,6 +415,38 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     }
   );
 
+  // --- Tool 5d: Get Timelogs ---
+  server.registerTool(
+    'freescout_get_timelogs',
+    {
+      title: 'Get Timelogs',
+      description:
+        'List logged time entries, optionally filtered by ticket, user, and/or date range (requires the Time Tracking module)',
+      inputSchema: {
+        ticket: z
+          .string()
+          .optional()
+          .describe('Ticket ID, ticket number, or FreeScout URL to filter by'),
+        userId: z.number().optional().describe('Filter by user ID'),
+        from: z
+          .string()
+          .optional()
+          .describe('Only entries on or after this date. ISO date or relative like "7d", "24h".'),
+        to: z
+          .string()
+          .optional()
+          .describe('Only entries on or before this date. ISO date or relative like "7d", "24h".'),
+        page: z.number().optional().describe('Page number'),
+        pageSize: z.number().optional().describe('Page size (defaults to 50)'),
+      },
+    },
+    async ({ ticket, userId, from, to, page, pageSize }) => {
+      const conversationId = ticket ? api.parseTicketInput(ticket) : undefined;
+      const results = await api.getTimelogs({ conversationId, userId, from, to, page, pageSize });
+      return { content: [{ type: 'text', text: JSON.stringify(results, null, 2) }] };
+    }
+  );
+
   // --- Tool 6: Get Ticket Context ---
   server.registerTool(
     'freescout_get_ticket_context',

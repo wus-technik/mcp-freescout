@@ -364,6 +364,23 @@ Log time spent on a FreeScout ticket. Requires the Time Tracking module to be in
 - "Log 15 minutes on ticket #12345"
 - "Book 30 minutes of time against this ticket"
 
+#### `freescout_get_timelogs`
+
+List logged time entries, optionally filtered by ticket, user, and/or date range. Requires the Time Tracking module. Backed by the global `/timelogs` endpoint, so it covers both "time on this one ticket" and cross-ticket reporting (e.g. for a manager reviewing everyone's booked time).
+
+**Parameters:**
+
+- `ticket` (optional): Ticket ID, number, or FreeScout URL to filter by
+- `userId` (optional): Filter by user ID. Reading another user's entries requires an admin-owned API key.
+- `from` / `to` (optional): Date range. ISO date or relative like `"7d"`, `"24h"`.
+- `page` / `pageSize` (optional): Pagination (defaults to 50 per page)
+
+**Natural Language Examples:**
+
+- "How much time was logged on ticket #12345?"
+- "Show all time booked this week"
+- "List time entries for user 7 in August"
+
 #### `freescout_search_tickets`
 
 Search for tickets across your FreeScout instance.
