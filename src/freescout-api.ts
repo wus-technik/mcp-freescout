@@ -395,6 +395,15 @@ export class FreeScoutAPI {
     return this.addThread(ticketId, 'message', text, userId, 'draft', recipients);
   }
 
+  async sendReply(
+    ticketId: string,
+    text: string,
+    userId?: number,
+    recipients?: FreeScoutRecipients
+  ): Promise<FreeScoutThread> {
+    return this.addThread(ticketId, 'message', text, userId, 'published', recipients);
+  }
+
   async updateConversation(
     ticketId: string,
     updates: {

@@ -351,6 +351,29 @@ describe('FreeScoutAPI', () => {
       expect(callBody.state).toBe('draft');
     });
 
+    it('should send a published reply via sendReply', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({
+          id: 460,
+          type: 'message',
+          body: 'Test reply',
+          created_by_customer: false,
+          created_at: '2024-01-01T00:00:00Z',
+        }),
+      });
+
+      await api.sendReply('123', 'Test reply', 1, {
+        to: ['customer@example.com'],
+      });
+
+      const callBody = JSON.parse((mockFetch.mock.calls[0][1]?.body as string) || '{}');
+      expect(callBody.type).toBe('message');
+      expect(callBody.to).toEqual(['customer@example.com']);
+      expect(callBody.state).toBe('published');
+    });
+
     it('should convert markdown to HTML for notes', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,

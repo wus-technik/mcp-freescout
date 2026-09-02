@@ -9,6 +9,7 @@ type FakeApi = {
   addThread: jest.Mock;
   updateConversation: jest.Mock;
   createDraftReply: jest.Mock;
+  sendReply: jest.Mock;
   getConversation: jest.Mock;
 };
 
@@ -17,6 +18,7 @@ const createFakeApi = (): FakeApi => ({
   addThread: jest.fn(async () => ({ id: 10 })),
   updateConversation: jest.fn(async () => ({})),
   createDraftReply: jest.fn(async () => ({ id: 20 })),
+  sendReply: jest.fn(async () => ({ id: 30 })),
   getConversation: jest.fn(async () => ({ to: ['customer@example.com'] })),
 });
 
@@ -125,6 +127,55 @@ describe('hosted user binding for mutating tools', () => {
     expect(api.createDraftReply).toHaveBeenCalledWith(
       '123',
       'draft body',
+      undefined,
+      { to: ['customer@example.com'], cc: undefined, bcc: undefined }
+    );
+  });
+
+  it('refuses to send without confirm:true', async () => {
+    const api = createFakeApi();
+    const handler = getToolHandler('default', 'freescout_send_reply', api);
+
+    const result = (await handler({ ticket: '123', replyText: 'real reply' })) as {
+      isError?: boolean;
+    };
+
+    expect(result.isError).toBe(true);
+    expect(api.sendReply).not.toHaveBeenCalled();
+  });
+
+  it('preserves stdio behavior for send reply when confirmed', async () => {
+    const api = createFakeApi();
+    const handler = getToolHandler('default', 'freescout_send_reply', api);
+
+    await handler({ ticket: '123', replyText: 'real reply', confirm: true });
+    await handler({ ticket: '123', replyText: 'real reply', confirm: true, userId: 42 });
+
+    expect(api.sendReply).toHaveBeenNthCalledWith(
+      1,
+      '123',
+      'real reply',
+      7,
+      { to: ['customer@example.com'], cc: undefined, bcc: undefined }
+    );
+    expect(api.sendReply).toHaveBeenNthCalledWith(
+      2,
+      '123',
+      'real reply',
+      42,
+      { to: ['customer@example.com'], cc: undefined, bcc: undefined }
+    );
+  });
+
+  it('binds hosted send reply to the authenticated user when confirmed', async () => {
+    const api = createFakeApi();
+    const handler = getToolHandler('authenticated', 'freescout_send_reply', api);
+
+    await handler({ ticket: '123', replyText: 'real reply', confirm: true, userId: 42 });
+
+    expect(api.sendReply).toHaveBeenCalledWith(
+      '123',
+      'real reply',
       undefined,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );

@@ -47,6 +47,7 @@ The server exposes these tools:
 - **freescout_add_note** - Add internal note to ticket
 - **freescout_update_ticket** - Update ticket status and assignment
 - **freescout_create_draft_reply** - Create draft reply for review
+- **freescout_send_reply** - Send a real reply immediately (requires confirm:true)
 - **freescout_get_ticket_context** - Get ticket context for personalized replies
 - **freescout_search_tickets** - Search tickets by query and filters
 
