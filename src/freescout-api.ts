@@ -528,6 +528,15 @@ export class FreeScoutAPI {
     return this.request<unknown>('/mailboxes');
   }
 
+  /**
+   * Resolves the user the configured API key belongs to. Requires a per-user
+   * FreeScout API key (freescout_apiWebhooks module) - legacy global keys
+   * return a 501 from the server.
+   */
+  async getCurrentUser(): Promise<unknown> {
+    return this.request<unknown>('/users/me');
+  }
+
   extractTicketIdFromUrl(url: string): string | null {
     // Match patterns like:
     // https://domain.com/conversation/12345

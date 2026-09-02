@@ -394,5 +394,20 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     }
   );
 
+  // --- Tool 9: Whoami ---
+  server.registerTool(
+    'freescout_whoami',
+    {
+      title: 'Get Current FreeScout User',
+      description:
+        'Get the identity of the FreeScout user the configured API key belongs to. Requires a per-user API key; fails with a clear error on legacy shared keys.',
+      inputSchema: {},
+    },
+    async () => {
+      const me = await api.getCurrentUser();
+      return { content: [{ type: 'text', text: JSON.stringify(me, null, 2) }] };
+    }
+  );
+
   return server;
 }

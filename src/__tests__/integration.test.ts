@@ -112,6 +112,15 @@ describeIf('FreeScout Integration Tests', () => {
     });
   });
 
+  describe('getCurrentUser', () => {
+    it('should fetch the API key owner', async () => {
+      const result = await api.getCurrentUser();
+
+      expect(result).toBeDefined();
+      // Requires a per-user API key; legacy global keys return a 501.
+    });
+  });
+
   describe('URL parsing', () => {
     it('should extract ticket ID from FreeScout URL', () => {
       const testUrl = `${FREESCOUT_URL}/conversation/12345`;
