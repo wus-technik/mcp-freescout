@@ -415,6 +415,44 @@ describe('FreeScoutAPI', () => {
     });
   });
 
+  describe('logTime', () => {
+    it('should post a timelog with duration in seconds', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({
+          id: 501,
+          conversationId: 123,
+          userId: 1,
+          timeSpent: 900,
+        }),
+      });
+
+      await api.logTime('123', 900, 1);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${mockBaseUrl}/api/conversations/123/timelogs`,
+        expect.objectContaining({ method: 'POST' })
+      );
+      const callBody = JSON.parse((mockFetch.mock.calls[0][1]?.body as string) || '{}');
+      expect(callBody.duration).toBe(900);
+      expect(callBody.userId).toBe(1);
+    });
+
+    it('should omit userId when not provided', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ id: 502, conversationId: 123, userId: 1, timeSpent: 300 }),
+      });
+
+      await api.logTime('123', 300);
+
+      const callBody = JSON.parse((mockFetch.mock.calls[0][1]?.body as string) || '{}');
+      expect(callBody.userId).toBeUndefined();
+    });
+  });
+
   describe('Schema Validation', () => {
     it('should validate conversation schema with all required fields', () => {
       const validConversation = {

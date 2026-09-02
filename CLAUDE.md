@@ -50,6 +50,7 @@ The server exposes these tools:
 - **freescout_send_reply** - Send a real reply immediately (requires confirm:true)
 - **freescout_get_ticket_context** - Get ticket context for personalized replies
 - **freescout_search_tickets** - Search tickets by query and filters
+- **freescout_log_time** - Log time spent on a ticket (requires the Time Tracking module)
 
 ### Git Integration
 

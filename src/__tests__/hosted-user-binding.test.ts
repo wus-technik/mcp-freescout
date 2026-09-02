@@ -12,6 +12,7 @@ type FakeApi = {
   sendReply: jest.Mock;
   getConversation: jest.Mock;
   getCurrentUser: jest.Mock;
+  logTime: jest.Mock;
 };
 
 const createFakeApi = (): FakeApi => ({
@@ -22,6 +23,7 @@ const createFakeApi = (): FakeApi => ({
   sendReply: jest.fn(async () => ({ id: 30 })),
   getConversation: jest.fn(async () => ({ to: ['customer@example.com'] })),
   getCurrentUser: jest.fn(async () => ({ id: 99 })),
+  logTime: jest.fn(async () => ({ id: 40 })),
 });
 
 const analyzer = {
@@ -187,5 +189,27 @@ describe('hosted user binding for mutating tools', () => {
       99,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );
+  });
+
+  it('preserves stdio behavior for log time', async () => {
+    const api = createFakeApi();
+    const handler = getToolHandler('default', 'freescout_log_time', api);
+
+    await handler({ ticket: '123', durationMinutes: 15 });
+    await handler({ ticket: '123', durationMinutes: 5, userId: 42 });
+
+    expect(api.logTime).toHaveBeenNthCalledWith(1, '123', 900, 7);
+    expect(api.logTime).toHaveBeenNthCalledWith(2, '123', 300, 42);
+    expect(api.getCurrentUser).not.toHaveBeenCalled();
+  });
+
+  it('binds hosted log time to the authenticated user', async () => {
+    const api = createFakeApi();
+    const handler = getToolHandler('authenticated', 'freescout_log_time', api);
+
+    await handler({ ticket: '123', durationMinutes: 15, userId: 42 });
+
+    expect(api.getCurrentUser).toHaveBeenCalled();
+    expect(api.logTime).toHaveBeenCalledWith('123', 900, 99);
   });
 });

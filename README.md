@@ -349,6 +349,21 @@ Get ticket context and customer information to help craft personalized replies.
 - Recent customer and team messages
 - Analysis results (bug vs feature vs third-party issue)
 
+#### `freescout_log_time`
+
+Log time spent on a FreeScout ticket. Requires the Time Tracking module to be installed and active on the FreeScout instance.
+
+**Parameters:**
+
+- `ticket` (required): Ticket ID, number, or FreeScout URL
+- `durationMinutes` (required): Time spent, in minutes
+- `userId` (optional): User ID the time is logged against (defaults to env setting; ignored in hosted mode, where it's always the authenticated user)
+
+**Natural Language Examples:**
+
+- "Log 15 minutes on ticket #12345"
+- "Book 30 minutes of time against this ticket"
+
 #### `freescout_search_tickets`
 
 Search for tickets across your FreeScout instance.

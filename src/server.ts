@@ -46,6 +46,9 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
   const sendUserDescription = usesAuthenticatedUser
     ? 'Ignored in hosted mode; the authenticated FreeScout API key determines the sender.'
     : 'User ID sending the reply (defaults to env setting)';
+  const logTimeUserDescription = usesAuthenticatedUser
+    ? 'Ignored in hosted mode; the authenticated FreeScout API key determines the user the time is logged against.'
+    : 'User ID the time is logged against (defaults to env setting)';
 
   // FreeScout's API requires an explicit numeric `user` id on every note/message
   // thread it creates, even when the request is authenticated with a per-user
@@ -370,6 +373,43 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
             text: `✅ ${output.message}${recipientWarning ? `\n\nWarning: ${recipientWarning}` : ''}`,
           },
         ],
+        structuredContent: output,
+      };
+    }
+  );
+
+  // --- Tool 5c: Log Time ---
+  server.registerTool(
+    'freescout_log_time',
+    {
+      title: 'Log Time on Ticket',
+      description: 'Log time spent on a FreeScout ticket (requires the Time Tracking module)',
+      inputSchema: {
+        ticket: z.string().describe('Ticket ID, ticket number, or FreeScout URL'),
+        durationMinutes: z.number().positive().describe('Time spent, in minutes'),
+        userId: z
+          .number()
+          .optional()
+          .describe(logTimeUserDescription),
+      },
+      outputSchema: {
+        success: z.boolean(),
+        message: z.string(),
+        ticketId: z.string(),
+      },
+    },
+    async ({ ticket, durationMinutes, userId }) => {
+      const ticketId = api.parseTicketInput(ticket);
+      const actualUserId = await resolveActingUserId(userId);
+      const durationSeconds = Math.round(durationMinutes * 60);
+      await api.logTime(ticketId, durationSeconds, actualUserId);
+      const output = {
+        success: true,
+        message: `Logged ${durationMinutes} minute(s) on ticket #${ticketId}`,
+        ticketId,
+      };
+      return {
+        content: [{ type: 'text', text: output.message }],
         structuredContent: output,
       };
     }

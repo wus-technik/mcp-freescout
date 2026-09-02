@@ -404,6 +404,14 @@ export class FreeScoutAPI {
     return this.addThread(ticketId, 'message', text, userId, 'published', recipients);
   }
 
+  async logTime(ticketId: string, durationSeconds: number, userId?: number): Promise<unknown> {
+    const body: { duration: number; userId?: number } = { duration: durationSeconds };
+    if (userId) {
+      body.userId = userId;
+    }
+    return this.request<unknown>(`/conversations/${ticketId}/timelogs`, 'POST', body);
+  }
+
   async updateConversation(
     ticketId: string,
     updates: {
