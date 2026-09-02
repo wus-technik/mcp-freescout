@@ -11,6 +11,7 @@ type FakeApi = {
   createDraftReply: jest.Mock;
   sendReply: jest.Mock;
   getConversation: jest.Mock;
+  getCurrentUser: jest.Mock;
 };
 
 const createFakeApi = (): FakeApi => ({
@@ -20,6 +21,7 @@ const createFakeApi = (): FakeApi => ({
   createDraftReply: jest.fn(async () => ({ id: 20 })),
   sendReply: jest.fn(async () => ({ id: 30 })),
   getConversation: jest.fn(async () => ({ to: ['customer@example.com'] })),
+  getCurrentUser: jest.fn(async () => ({ id: 99 })),
 });
 
 const analyzer = {
@@ -59,6 +61,7 @@ describe('hosted user binding for mutating tools', () => {
 
     expect(api.addThread).toHaveBeenNthCalledWith(1, '123', 'note', 'hello', 7);
     expect(api.addThread).toHaveBeenNthCalledWith(2, '123', 'note', 'hello', 42);
+    expect(api.getCurrentUser).not.toHaveBeenCalled();
   });
 
   it('binds hosted add note to the authenticated user', async () => {
@@ -67,7 +70,8 @@ describe('hosted user binding for mutating tools', () => {
 
     await handler({ ticket: '123', note: 'hello', userId: 42 });
 
-    expect(api.addThread).toHaveBeenCalledWith('123', 'note', 'hello', undefined);
+    expect(api.getCurrentUser).toHaveBeenCalled();
+    expect(api.addThread).toHaveBeenCalledWith('123', 'note', 'hello', 99);
   });
 
   it('preserves stdio behavior for update ticket', async () => {
@@ -116,6 +120,7 @@ describe('hosted user binding for mutating tools', () => {
       42,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );
+    expect(api.getCurrentUser).not.toHaveBeenCalled();
   });
 
   it('binds hosted draft replies to the authenticated user', async () => {
@@ -124,10 +129,11 @@ describe('hosted user binding for mutating tools', () => {
 
     await handler({ ticket: '123', replyText: 'draft body', userId: 42 });
 
+    expect(api.getCurrentUser).toHaveBeenCalled();
     expect(api.createDraftReply).toHaveBeenCalledWith(
       '123',
       'draft body',
-      undefined,
+      99,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );
   });
@@ -165,6 +171,7 @@ describe('hosted user binding for mutating tools', () => {
       42,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );
+    expect(api.getCurrentUser).not.toHaveBeenCalled();
   });
 
   it('binds hosted send reply to the authenticated user when confirmed', async () => {
@@ -173,10 +180,11 @@ describe('hosted user binding for mutating tools', () => {
 
     await handler({ ticket: '123', replyText: 'real reply', confirm: true, userId: 42 });
 
+    expect(api.getCurrentUser).toHaveBeenCalled();
     expect(api.sendReply).toHaveBeenCalledWith(
       '123',
       'real reply',
-      undefined,
+      99,
       { to: ['customer@example.com'], cc: undefined, bcc: undefined }
     );
   });

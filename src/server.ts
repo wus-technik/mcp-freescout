@@ -46,6 +46,17 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
   const sendUserDescription = usesAuthenticatedUser
     ? 'Ignored in hosted mode; the authenticated FreeScout API key determines the sender.'
     : 'User ID sending the reply (defaults to env setting)';
+
+  // FreeScout's API requires an explicit numeric `user` id on every note/message
+  // thread it creates, even when the request is authenticated with a per-user
+  // API key - it does not infer the acting user from the Bearer token.
+  const resolveActingUserId = async (userId?: number): Promise<number | undefined> => {
+    if (usesAuthenticatedUser) {
+      const me = (await api.getCurrentUser()) as { id: number };
+      return me.id;
+    }
+    return userId ?? DEFAULT_USER_ID;
+  };
   const updateDescription = usesAuthenticatedUser
     ? 'Update ticket status and/or assignment as the authenticated FreeScout API user'
     : 'Update ticket status and/or assignment';
@@ -119,7 +130,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     },
     async ({ ticket, note, userId }) => {
       const ticketId = api.parseTicketInput(ticket);
-      const actualUserId = usesAuthenticatedUser ? undefined : userId ?? DEFAULT_USER_ID;
+      const actualUserId = await resolveActingUserId(userId);
       await api.addThread(ticketId, 'note', note, actualUserId);
       const output = {
         success: true,
@@ -213,7 +224,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
     },
     async ({ ticket, replyText, userId, to, cc, bcc }) => {
       const ticketId = api.parseTicketInput(ticket);
-      const actualUserId = usesAuthenticatedUser ? undefined : userId ?? DEFAULT_USER_ID;
+      const actualUserId = await resolveActingUserId(userId);
       const requestedRecipients: FreeScoutRecipients = { to, cc, bcc };
       let recipientWarning: string | null = null;
 
@@ -314,7 +325,7 @@ export function createFreeScoutMcpServer(opts: CreateServerOptions): McpServer {
       }
 
       const ticketId = api.parseTicketInput(ticket);
-      const actualUserId = usesAuthenticatedUser ? undefined : userId ?? DEFAULT_USER_ID;
+      const actualUserId = await resolveActingUserId(userId);
       const requestedRecipients: FreeScoutRecipients = { to, cc, bcc };
       let recipientWarning: string | null = null;
 
